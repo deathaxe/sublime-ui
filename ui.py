@@ -182,8 +182,8 @@ class SelectThemeCommand(sublime_plugin.WindowCommand):
         self.prefs = sublime.load_settings(self.PREFS_FILE)
 
         self.current = self.prefs.get('theme', self.DEFAULT_THEME)
-        cur_index = -1
 
+        initial_highlight = -1
         self.themes = []
         names = []
 
@@ -197,7 +197,7 @@ class SelectThemeCommand(sublime_plugin.WindowCommand):
             if name in self.themes:
                 continue
             if name == self.current:
-                cur_index = len(self.themes)
+                initial_highlight = len(self.themes)
             if len(theme.split('/', 2)) != 3:  # Not in a package
                 continue
             self.themes.append(name)
@@ -210,7 +210,7 @@ class SelectThemeCommand(sublime_plugin.WindowCommand):
             names,
             self.on_done,
             sublime.KEEP_OPEN_ON_FOCUS_LOST,
-            cur_index,
+            initial_highlight,
             self.on_highlighted
         )
 
