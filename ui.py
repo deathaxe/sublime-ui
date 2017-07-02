@@ -43,15 +43,14 @@ class SelectColorSchemeCommand(sublime_plugin.WindowCommand):
             # Hide certain color schemes from the list
             if any(h in cs for h in hidden):
                 continue
-            if len(cs.split('/', 2)) != 3:  # Not in a package
+            parts = cs.split('/')
+            if len(parts) < 3:  # Not in a package
                 continue
-            pkg = os.path.dirname(cs)
-            if pkg.startswith("Packages/"):
-                pkg = pkg[len("Packages/"):]
-            name, ext = os.path.splitext(os.path.basename(cs))
-            self.schemes.append(cs)
-            names.append([name, pkg])
+            pkg = parts[1] if parts[0] == 'Packages' else parts[0]
+            name, _ = os.path.splitext(parts[-1])
+            names.append(["🎨 " + name, pkg])
             package_set.add(pkg)
+            self.schemes.append(cs)
 
         # special section for compatibility with SublimeLinter
         try:
@@ -203,7 +202,8 @@ class SelectThemeCommand(sublime_plugin.WindowCommand):
             if any(h in theme for h in hidden):
                 continue
 
-            name = os.path.basename(theme)
+            parts = theme.split('/')
+            name = parts[-1]
 
             # Themes with the same name, but in different packages, are
             # considered a single logical theme, as the data from the
@@ -213,13 +213,12 @@ class SelectThemeCommand(sublime_plugin.WindowCommand):
                 continue
             if name == self.current:
                 initial_highlight = len(self.themes)
-            if len(theme.split('/', 2)) != 3:  # Not in a package
+            if len(parts) < 3:  # Not in a package
                 continue
             self.themes.append(name)
-            pkg = os.path.dirname(theme) + '/'
-            if pkg.startswith("Packages/"):
-                pkg = pkg[len("Packages/"):]
-            names.append([name, pkg])
+            pkg = parts[1] if parts[0] == 'Packages' else parts[0]
+            name, _ = os.path.splitext(name)
+            names.append(["🖌 " + name, pkg])
 
         self.window.show_quick_panel(
             names,
