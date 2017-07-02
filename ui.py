@@ -117,7 +117,7 @@ class SelectColorSchemeCommand(sublime_plugin.WindowCommand):
                 return
             self.prefs.set('color_scheme', selected)
             for settings, _ in self.overridden_views():
-                settings.set('color_scheme', self.schemes[index])
+                settings.set('color_scheme', selected)
         sublime.set_timeout(update_cs, 250)
 
     def overridden_views(self, find=True):
