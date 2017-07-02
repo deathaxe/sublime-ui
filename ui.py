@@ -186,7 +186,6 @@ class SelectThemeCommand(sublime_plugin.WindowCommand):
 
         self.themes = []
         names = []
-        nameset = set()
 
         for theme in sublime.find_resources('*.sublime-theme'):
             name = os.path.basename(theme)
@@ -195,10 +194,8 @@ class SelectThemeCommand(sublime_plugin.WindowCommand):
             # considered a single logical theme, as the data from the
             # different files is merged. Ensure there's only one entry per
             # basename
-            if name in nameset:
+            if name in self.themes:
                 continue
-            nameset.add(name)
-
             if name == self.current:
                 cur_index = len(self.themes)
             if len(theme.split('/', 2)) != 3:  # Not in a package
