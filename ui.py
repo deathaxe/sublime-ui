@@ -32,21 +32,22 @@ class SelectColorSchemeCommand(sublime_plugin.WindowCommand):
 
         self.current = self.prefs.get('color_scheme', self.DEFAULT_CS)
 
-        show_legacy = sublime.load_settings(
-            "Preferences.sublime-settings").get("show_legacy_color_schemes", False)
+        hidden = self.prefs.get("hidden_color_scheme_pattern") or []
 
         initial_highlight = -1
         self.schemes = []
         names = []
         package_set = set()
+
         for cs in sublime.find_resources('*.tmTheme'):
-            if len(cs.split('/', 2)) != 3:  # Not in a package
+            # Hide certain color schemes from the list
+            if any(h in cs for h in hidden):
                 continue
-            pkg = os.path.dirname(cs)
-            if pkg == "Packages/Color Scheme - Legacy" and not show_legacy:
+            if len(cs.split('/', 2)) != 3:  # Not in a package
                 continue
             if self.current and cs == self.current:
                 initial_highlight = len(self.schemes)
+            pkg = os.path.dirname(cs)
             if pkg.startswith("Packages/"):
                 pkg = pkg[len("Packages/"):]
             name, ext = os.path.splitext(os.path.basename(cs))
@@ -183,11 +184,17 @@ class SelectThemeCommand(sublime_plugin.WindowCommand):
 
         self.current = self.prefs.get('theme', self.DEFAULT_THEME)
 
+        hidden = self.prefs.get("hidden_themes_pattern") or []
+
         initial_highlight = -1
         self.themes = []
         names = []
 
         for theme in sublime.find_resources('*.sublime-theme'):
+            # Hide certain themes from the list
+            if any(h in theme for h in hidden):
+                continue
+
             name = os.path.basename(theme)
 
             # Themes with the same name, but in different packages, are
