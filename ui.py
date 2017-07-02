@@ -87,8 +87,8 @@ class SelectColorSchemeCommand(sublime_plugin.WindowCommand):
 
         # Reset view-specific color schemes whether a new global
         # color scheme was selected or not
-        for i in self.overridden_views(find=False):
-            i['settings'].set('color_scheme', i['original'])
+        for settings, original in self.overridden_views(find=False):
+            settings.set('color_scheme', original)
 
         if index == -1:
             self.prefs.set('color_scheme', self.current)
@@ -116,8 +116,8 @@ class SelectColorSchemeCommand(sublime_plugin.WindowCommand):
             if self.prefs.get('color_scheme') == selected:
                 return
             self.prefs.set('color_scheme', selected)
-            for i in self.overridden_views():
-                i['settings'].set('color_scheme', self.schemes[index])
+            for settings, _ in self.overridden_views():
+                settings.set('color_scheme', self.schemes[index])
         sublime.set_timeout(update_cs, 250)
 
     def overridden_views(self, find=True):
@@ -133,21 +133,18 @@ class SelectColorSchemeCommand(sublime_plugin.WindowCommand):
         """
 
         if self.views is None:
+            vs = set()
             if find is False:
-                return []
+                return vs
             # If the color scheme hasn't been changed, we won't
             # be able to detect overrides
             if self.prefs.get('color_scheme') == self.current:
-                return []
-            vs = []
+                return vs
             for i in range(self.window.num_groups()):
                 v = self.window.active_view_in_group(i)
                 cs = v.settings().get('color_scheme', self.DEFAULT_CS)
                 if self.is_view_specific(v):
-                    vs.append({
-                        'settings': v.settings(),
-                        'original': cs,
-                    })
+                    vs.add((v.settings(), cs))
             self.views = vs
         return self.views
 
