@@ -40,13 +40,13 @@ class SelectColorSchemeCommand(sublime_plugin.WindowCommand):
         names = []
         package_set = set()
         for cs in sublime.find_resources('*.tmTheme'):
-            if self.current and cs == self.current:
-                initial_highlight = len(self.schemes)
             if len(cs.split('/', 2)) != 3:  # Not in a package
                 continue
             pkg = os.path.dirname(cs)
             if pkg == "Packages/Color Scheme - Legacy" and not show_legacy:
                 continue
+            if self.current and cs == self.current:
+                initial_highlight = len(self.schemes)
             if pkg.startswith("Packages/"):
                 pkg = pkg[len("Packages/"):]
             name, ext = os.path.splitext(os.path.basename(cs))
