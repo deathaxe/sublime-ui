@@ -45,8 +45,6 @@ class SelectColorSchemeCommand(sublime_plugin.WindowCommand):
                 continue
             if len(cs.split('/', 2)) != 3:  # Not in a package
                 continue
-            if self.current and cs == self.current:
-                initial_highlight = len(self.schemes)
             pkg = os.path.dirname(cs)
             if pkg.startswith("Packages/"):
                 pkg = pkg[len("Packages/"):]
@@ -54,6 +52,19 @@ class SelectColorSchemeCommand(sublime_plugin.WindowCommand):
             self.schemes.append(cs)
             names.append([name, pkg])
             package_set.add(pkg)
+
+        # special section for compatibility with SublimeLinter
+        try:
+            initial_highlight = self.schemes.index(self.current)
+        except ValueError:
+            try:
+                # find the original color scheme for a sublimelinter hacked
+                original_cs = self.current.replace(" (SL)", "")
+                original_cs = os.path.basename(original_cs)
+                original_cs = sublime.find_resources(original_cs)[-1]
+                initial_highlight = self.schemes.index(original_cs)
+            except ValueError:
+                initial_highlight = -1
 
         # Don't show the package name if all color schemes are in the same
         # package
